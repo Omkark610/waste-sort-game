@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Waste Sorting Game</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <style type="text/css">
+  body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f1f8e9;
+  margin: 0;
+  padding: 20px;
+}
+
+canvas {
+  border: 2px solid #000;
+  background-color: #ffffff;
+  display: block;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+#score {
+  font-size: 20px;
+  margin-top: 10px;
+  color: #333;
+}
+
+</style>
+</head>
+<body>
+  <h1>♻️ Waste Sorting Game</h1>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <p id="score">Score: 0</p>
+  <!-- <script src="script.js"></script> -->
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const bucketWidth = 120;
+const bucketHeight = 60;
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
+
+const buckets = [
+  { x: 10, label: "Recycle", color: "#4CAF50", type: "recycle" },
+  { x: 140, label: "Food Waste", color: "#FF9800", type: "food" },
+  { x: 270, label: "Harmful", color: "#F44336", type: "harmful" }
+];
+
+const wasteTypes = [
+  { label: "🍾", type: "recycle", name: "Bottle" },
+  { label: "🍌", type: "food", name: "Banana Peel" },
+  { label: "🔋", type: "harmful", name: "Battery" }
+];
+
+let fallingWaste = null;
+let score = 0;
+
+function spawnWaste() {
+  const random = wasteTypes[Math.floor(Math.random() * wasteTypes.length)];
+  fallingWaste = {
+    ...random,
+    x: Math.floor(Math.random() * (canvasWidth - 30)),
+    y: 0,
+    size: 30,
+    speed: 2
+  };
+}
+
+function drawBuckets() {
+  buckets.forEach(bucket => {
+    // Draw bucket base
+    ctx.fillStyle = bucket.color;
+    ctx.fillRect(bucket.x, canvasHeight - bucketHeight, bucketWidth, bucketHeight);
+
+    // Draw bucket border
+    ctx.strokeStyle = "#333";
+    ctx.strokeRect(bucket.x, canvasHeight - bucketHeight, bucketWidth, bucketHeight);
+
+    // Draw label
+    ctx.fillStyle = "#fff";
+    ctx.font = "14px Arial";
+    ctx.fillText(bucket.label, bucket.x + 10, canvasHeight - 10);
+  });
+}
+
+function drawWaste() {
+  if (!fallingWaste) return;
+  ctx.font = `${fallingWaste.size}px Arial`;
+  ctx.fillText(fallingWaste.label, fallingWaste.x, fallingWaste.y + fallingWaste.size);
+}
+
+function update() {
+  if (!fallingWaste) spawnWaste();
+  fallingWaste.y += fallingWaste.speed;
+
+  if (fallingWaste.y + fallingWaste.size >= canvasHeight - bucketHeight) {
+    const matchedBucket = buckets.find(bucket =>
+      fallingWaste.x + fallingWaste.size / 2 >= bucket.x &&
+      fallingWaste.x + fallingWaste.size / 2 <= bucket.x + bucketWidth
+    );
+
+    if (matchedBucket && matchedBucket.type === fallingWaste.type) {
+      score += 10;
+    } else {
+      score -= 5;
+    }
+
+    document.getElementById('score').innerText = "Score: " + score;
+    fallingWaste = null;
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  drawBuckets();
+  drawWaste();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (!fallingWaste) return;
+
+  if (e.key === "ArrowLeft" && fallingWaste.x > 0) {
+    fallingWaste.x -= 20;
+  } else if (e.key === "ArrowRight" && fallingWaste.x + fallingWaste.size < canvasWidth) {
+    fallingWaste.x += 20;
+  } else if (e.key === "ArrowDown") {
+    fallingWaste.y += 20;
+  }
+});
+
+gameLoop();
+
+  </script>
+</body>
+</html>
