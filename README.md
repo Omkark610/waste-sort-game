@@ -10,7 +10,7 @@ TLDR:
 Gomi Sort: catch falling rubbish and drop it in the right bin, Japanese-style. 
 How long can you keep your hearts?
 
-Live Link:
+Live Link: http://gomi-sort.omkarkadam.in/
 
 Live Link:
 https://omkark610.github.io/waste-sort-game/index.html
